@@ -1,0 +1,17 @@
+frontend:
+main app url : https://ipacinternal.com/ipac-ebs/
+directory 	: /var/www/html/ipac-ebs/
+github url: https://github.com/iAyubAnsari/ipac-hr-frontend.git
+command : npm run build
+
+
+backend:
+api url:https://api-db.ipacinternal.com/
+directory: ipac-hr-backend/prod/
+github url : https://github.com/iAyubAnsari/ipac-hr-backend.git
+command : npm run start:prod
+
+
+github account details
+username : iAyubAnsari
+accessToken: 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
