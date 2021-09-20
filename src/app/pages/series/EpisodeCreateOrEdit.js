@@ -7,23 +7,14 @@ import { s3ForImages, s3ForImagesDelete, s3ForVideoSource } from '../../utils/aw
 import axios from '../../utils/axios-default';
 import Form from 'react-bootstrap/Form';
 
-export default function MovieCreateOrEdit(props) {
-	const [dateArray, setDateArray] = useState([]);
-	const [genreArray, setGenreArray] = useState([]);
+export default function EpisodeCreateOrEdit(props) {
+	const [series, setseries] = useState({});
 	const [title, setTitle] = useState('');
-	const [genre, setGenre] = useState('');
-	const [yearOfRelease, setYearOfRelease] = useState('');
 	const [dateOfRelease, setDateOfRelease] = useState('');
-	const [director, setDirector] = useState('');
-	const [productionHouse, setProductionHouse] = useState('');
-	const [imdbRating, setImdbRating] = useState('');
 	const [runningTime, setRunningTime] = useState('');
 	const [actors, setActors] = useState('');
 	const [plot, setPlot] = useState('');
-	const [rated, setRated] = useState('');
-	const [isPublieshed, setIsPublieshed] = useState('');
-	const [subscriptionRequired, setSubscriptionRequired] = useState('');
-
+	const [episodeNo, setEpisodeNo] = useState('');
 	const [errorText, setErrorText] = useState('');
 	const [isLoading, setLoading] = useState(false);
 	const useLoaderContext = useContext(LoaderContext);
@@ -33,7 +24,7 @@ export default function MovieCreateOrEdit(props) {
 	const [videoMain, setVideoMain] = useState({});
 	const [imagesVertical, setImagesVertical] = useState([]);
 	const fileInputImagesRef = useRef();
-	const fileInputImagesVerticalRef = useRef();
+
 	const fileInputVideoTrailerRef = useRef();
 	const fileInputVideoMainRef = useRef();
 	const formRef = useRef();
@@ -45,23 +36,17 @@ export default function MovieCreateOrEdit(props) {
 	const handleSubmitForm = e => {
 		e.preventDefault();
 		console.log(formRef);
-		axios.post('movies/', {
+		axios.post('series-episodes/', {
+			episodeNo,
 			title,
-			genre,
-			yearOfRelease,
 			dateOfRelease,
-			director,
-			productionHouse,
-			imdbRating,
 			runningTime,
 			actors,
 			plot,
-			rated,
-			subscriptionRequired,
 			images,
 			videoTrailer,
 			videoMain,
-			imagesVertical,
+			series: series._id,
 		})
 			.then(res => {
 				alert('done');
@@ -124,43 +109,7 @@ export default function MovieCreateOrEdit(props) {
 		}
 		fileInputImagesRef.current.value = '';
 	};
-	const uploadVerticalImages = e => {
-		e.preventDefault();
-		if (fileInputImagesVerticalRef.current.files.length !== 0) {
-			let filesArray = fileInputImagesVerticalRef.current.files;
-			const handleS3FileUpload = async file => {
-				useLoaderContext.loadingText('Processing');
-				useLoaderContext.toggleLoader(true);
-				let newFileName = file.name.replace(/\..+$/, '');
-				newFileName = parseInt(Math.random() * 10000000).toString() + '-' + newFileName;
-				await ReactS3Client.uploadFile(file, newFileName).then(data => {
-					if (data.status === 204) {
-						let res = {
-							location: {
-								s3Url:
-									'https://watchflix-image-bucket.s3.amazonaws.com/' +
-									data.key,
-								cloudFrontUrl:
-									'https://d1kii9u1lzlye3.cloudfront.net/' +
-									data.key,
-							},
-						};
-						setImagesVertical(oldArray => [...oldArray, res]);
-					} else {
-						console.log('something went wrong');
-					}
-				});
-				useLoaderContext.toggleLoader(false);
-			};
 
-			for (let i = 0; i < filesArray.length; i++) {
-				handleS3FileUpload(filesArray[i]);
-			}
-		} else {
-			alert('Please choose posters to upload');
-		}
-		fileInputImagesVerticalRef.current.value = '';
-	};
 	const uploadVideoTrailer = e => {
 		e.preventDefault();
 		if (fileInputVideoTrailerRef.current.files.length !== 0) {
@@ -217,7 +166,7 @@ export default function MovieCreateOrEdit(props) {
 		} else {
 			alert('Please choose video trailer to upload');
 		}
-		fileInputImagesVerticalRef.current.value = '';
+		fileInputVideoTrailerRef.current.value = '';
 	};
 
 	const uploadVideoMain = e => {
@@ -276,23 +225,20 @@ export default function MovieCreateOrEdit(props) {
 		} else {
 			alert('Please choose video to upload');
 		}
-		fileInputImagesVerticalRef.current.value = '';
+		fileInputVideoMainRef.current.value = '';
 	};
 
 	useEffect(() => {
-		for (let index = 1950; index < 2022; index++) {
-			setDateArray(d => [...d, index]);
-		}
-		axios.get('/genres/all').then(res => {
-			setGenreArray(res.data);
+		let { id } = props.match.params;
+		axios.get('/series/' + id).then(res => {
+			setseries(res.data);
 		});
-		console.log(images);
 	}, []);
 
 	return (
 		<>
 			<Helmet defer={false}>
-				<title>New Movie - {process.env.REACT_APP_NAME}</title>
+				<title>New Episode - {process.env.REACT_APP_NAME}</title>
 			</Helmet>
 			<div className="">
 				<div className="container">
@@ -302,7 +248,7 @@ export default function MovieCreateOrEdit(props) {
 								<div className="card">
 									<div className="card-body">
 										<h4 className="card-title bg-light clearfix ">
-											New Movie
+											New Episode [{series.title}]
 										</h4>
 										<div>
 											<Form
@@ -316,7 +262,33 @@ export default function MovieCreateOrEdit(props) {
 													controlId="formBasicEmail"
 												>
 													<Form.Label>
-														Movie
+														Episode
+														No
+													</Form.Label>
+													<Form.Control
+														type="Number"
+														placeholder="Enter Episode No"
+														value={
+															episodeNo
+														}
+														onChange={e =>
+															setEpisodeNo(
+																e
+																	.target
+																	.value
+															)
+														}
+														required={
+															true
+														}
+													/>
+												</Form.Group>
+												<Form.Group
+													className="col-12"
+													controlId="formBasicEmail"
+												>
+													<Form.Label>
+														Episode
 														Title
 													</Form.Label>
 													<Form.Control
@@ -337,54 +309,7 @@ export default function MovieCreateOrEdit(props) {
 														}
 													/>
 												</Form.Group>
-												<Form.Group
-													className="col-12"
-													controlId="formBasicEmail"
-												>
-													<Form.Label>
-														Genre
-													</Form.Label>
-													<select
-														className="form-control"
-														aria-label="Default select example"
-														name="genre"
-														value={
-															genre
-														}
-														onChange={e =>
-															setGenre(
-																e
-																	.target
-																	.value
-															)
-														}
-													>
-														<option>
-															--
-															Choose
-															--
-														</option>
-														{genreArray.map(
-															(
-																item,
-																index
-															) => (
-																<option
-																	key={
-																		index
-																	}
-																	value={
-																		item._id
-																	}
-																>
-																	{
-																		item.title
-																	}
-																</option>
-															)
-														)}
-													</select>
-												</Form.Group>
+
 												<div className="col-md-12">
 													<div className="row">
 														<div className="col-md-8">
@@ -475,83 +400,6 @@ export default function MovieCreateOrEdit(props) {
 													</div>
 												</div>
 
-												<div className="col-md-12">
-													<div className="row">
-														<div className="col-md-8">
-															<Form.Group controlId="formBasicEmail">
-																<Form.Label>
-																	Vertical
-																	Images
-																	or
-																	Posters
-																</Form.Label>
-																<Form.Control
-																	type="file"
-																	ref={
-																		fileInputImagesVerticalRef
-																	}
-																	multiple
-																/>
-															</Form.Group>
-														</div>
-														<div className="col-md-4">
-															<Form.Group controlId="formBasicEmail">
-																<Form.Label></Form.Label>
-																<div
-																	style={{
-																		paddingTop: 3,
-																	}}
-																>
-																	<Button
-																		onClick={
-																			uploadVerticalImages
-																		}
-																	>
-																		Upload
-																		Vertical
-																		Images
-																	</Button>
-																</div>
-															</Form.Group>
-														</div>
-													</div>
-												</div>
-
-												<div className="col-12">
-													<div
-														className="row"
-														style={{
-															marginTop: 10,
-															marginBottom: 10,
-														}}
-													>
-														{imagesVertical.map(
-															(
-																item,
-																index
-															) => (
-																<div
-																	key={
-																		index
-																	}
-																	className="col-12 col-md-3"
-																>
-																	<img
-																		style={{
-																			maxWidth: '100%',
-																			borderRadius: 7,
-																		}}
-																		src={
-																			item
-																				.location
-																				.s3Url
-																		}
-																	/>
-																</div>
-															)
-														)}
-													</div>
-												</div>
 												<div className="col-md-12">
 													<div className="row">
 														<div className="col-md-8">
@@ -702,51 +550,7 @@ export default function MovieCreateOrEdit(props) {
 														)}
 													</div>
 												</div>
-												<Form.Group
-													className="col-12"
-													controlId="formBasicEmail"
-												>
-													<Form.Label>
-														Year of
-														Release
-													</Form.Label>
-													<select
-														className="form-control"
-														value={
-															yearOfRelease
-														}
-														onChange={e =>
-															setYearOfRelease(
-																e
-																	.target
-																	.value
-															)
-														}
-														required={
-															true
-														}
-													>
-														{dateArray.map(
-															(
-																item,
-																index
-															) => (
-																<option
-																	key={
-																		index
-																	}
-																	value={
-																		item
-																	}
-																>
-																	{
-																		item
-																	}
-																</option>
-															)
-														)}
-													</select>
-												</Form.Group>
+
 												<Form.Group
 													className="col-12"
 													controlId="formBasicEmail"
@@ -786,80 +590,6 @@ export default function MovieCreateOrEdit(props) {
 														}
 														onChange={e =>
 															setActors(
-																e
-																	.target
-																	.value
-															)
-														}
-														required={
-															true
-														}
-													/>
-												</Form.Group>
-												<Form.Group
-													className="col-12"
-													controlId="formBasicEmail"
-												>
-													<Form.Label>
-														Director
-													</Form.Label>
-													<Form.Control
-														type="text"
-														value={
-															director
-														}
-														onChange={e =>
-															setDirector(
-																e
-																	.target
-																	.value
-															)
-														}
-														required={
-															true
-														}
-													/>
-												</Form.Group>
-												<Form.Group
-													className="col-12"
-													controlId="formBasicEmail"
-												>
-													<Form.Label>
-														Production
-														House
-													</Form.Label>
-													<Form.Control
-														type="text"
-														value={
-															productionHouse
-														}
-														onChange={e =>
-															setProductionHouse(
-																e
-																	.target
-																	.value
-															)
-														}
-														required={
-															true
-														}
-													/>
-												</Form.Group>
-												<Form.Group
-													className="col-12"
-													controlId="formBasicEmail"
-												>
-													<Form.Label>
-														IMDB
-														Rating
-													</Form.Label>
-													<Form.Control
-														type="number"
-														value={
-															imdbRating
-														}
-														onChange={e =>
-															setImdbRating(
 																e
 																	.target
 																	.value
@@ -925,81 +655,6 @@ export default function MovieCreateOrEdit(props) {
 														}
 													/>
 												</Form.Group>
-												<Form.Group
-													className="col-12"
-													controlId="formBasicEmail"
-												>
-													<Form.Label>
-														Rated
-													</Form.Label>
-													<select
-														className="form-control"
-														aria-label="Default select example"
-														name="rated"
-														value={
-															rated
-														}
-														onChange={e =>
-															setRated(
-																e
-																	.target
-																	.value
-															)
-														}
-													>
-														<option>
-															--
-															Choose
-															--
-														</option>
-														<option value="U">
-															U
-														</option>
-														<option value="U/A">
-															U/A
-														</option>
-														<option value="A">
-															A
-														</option>
-													</select>
-												</Form.Group>
-
-												<Form.Group
-													className="col-12"
-													controlId="formBasicEmail"
-												>
-													<Form.Label>
-														Subscription
-														Required
-													</Form.Label>
-													<select
-														className="form-control"
-														aria-label="Default select example"
-														name="subscriptionRequired"
-														value={
-															subscriptionRequired
-														}
-														onChange={e =>
-															setSubscriptionRequired(
-																e
-																	.target
-																	.value
-															)
-														}
-													>
-														<option>
-															--
-															Choose
-															--
-														</option>
-														<option value="true">
-															Yes
-														</option>
-														<option value="false">
-															No
-														</option>
-													</select>
-												</Form.Group>
 
 												<Form.Group
 													style={{
@@ -1011,8 +666,6 @@ export default function MovieCreateOrEdit(props) {
 														type="submit"
 														disabled={
 															images.length >
-																0 &&
-															imagesVertical.length >
 																0 &&
 															videoTrailer !==
 																'' &&

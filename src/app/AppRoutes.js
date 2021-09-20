@@ -10,6 +10,16 @@ const Dashboard = lazy(() => import('./pages/dashboard/Dashboard'));
 const Movies = lazy(() => import('./pages/movies/Movies'));
 const MovieCreateOrEdit = lazy(() => import('./pages/movies/MovieCreateOrEdit'));
 
+const Genres = lazy(() => import('./pages/genres/Genres'));
+const GenreCreateOrEdit = lazy(() => import('./pages/genres/GenreCreateOrEdit'));
+
+const Series = lazy(() => import('./pages/series/Series'));
+const SeriesCreateOrEdit = lazy(() => import('./pages/series/SeriesCreateOrEdit'));
+const Episodes = lazy(() => import('./pages/series/Episodes'));
+const EpisodeCreate = lazy(() => import('./pages/series/EpisodeCreateOrEdit'));
+
+const Subscriptions = lazy(() => import('./pages/subscriptions/Subscriptions'));
+
 const Users = lazy(() => import('./pages/users/Users'));
 const UserCreateOrEdit = lazy(() => import('./pages/users/UserCreateOrEdit'));
 
@@ -34,6 +44,26 @@ class AppRoutes extends Component {
 						path="/movies/create"
 						component={MovieCreateOrEdit}
 					/>
+					<PrivateRoute exact={true} path="/series" component={Series} />
+					<PrivateRoute
+						exact={true}
+						path="/series/create"
+						component={SeriesCreateOrEdit}
+					/>
+					<PrivateRoute exact={true} path="/series/:slug" component={Episodes} />
+					<PrivateRoute exact={true} path="/genres" component={Genres} />
+					<PrivateRoute
+						exact={true}
+						path="/genres/create"
+						component={GenreCreateOrEdit}
+					/>
+					<PrivateRoute
+						exact={true}
+						path="/series/episode/create/:id"
+						component={EpisodeCreate}
+					/>
+					<PrivateRoute exact={true} path="/subscriptions" component={Subscriptions} />
+
 					<Route path="/login" component={Login} />
 					<Route path="*" component={Error404} />
 				</Switch>

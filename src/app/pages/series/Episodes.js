@@ -7,13 +7,14 @@ import { Link } from 'react-router-dom';
 import LoaderContext from '../../context/LoaderContext';
 import axios from '../../utils/axios-default';
 
-export class Movies extends Component {
+export class Series extends Component {
 	// const { dark, toggle } =
 	static contextType = LoaderContext;
 
 	constructor(props) {
 		super(props);
 		this.state = {
+			series: {},
 			data: [],
 			deleteModalShow: false,
 			deletableId: '',
@@ -37,10 +38,12 @@ export class Movies extends Component {
 	}
 
 	componentDidMount() {
-		axios.get('/movies/all').then(result => {
-			console.log({ result });
+		let { id, slug } = this.props.match.params;
+		// console.log({ id, slug });
+		axios.get('/series/s/' + slug).then(result => {
 			this.setState({
-				data: result.data.docs,
+				series: result.data,
+				data: result.data.episodes,
 			});
 		});
 	}
@@ -48,7 +51,7 @@ export class Movies extends Component {
 	handleDelete() {
 		this.context.loadingText('Processing');
 		this.context.toggleLoader(true);
-		axios.delete('/movies/' + this.state.deletableId + '/delete')
+		axios.delete('/series-episodes/' + this.state.deletableId + '/delete')
 			.then(res => {
 				alert('Deleted successfuly');
 				this.handleDeleteModalClose();
@@ -66,17 +69,17 @@ export class Movies extends Component {
 		return (
 			<>
 				<Helmet defer={false}>
-					<title>Movies - {process.env.REACT_APP_NAME}</title>
+					<title>Episodes - {process.env.REACT_APP_NAME}</title>
 				</Helmet>
 				<div className="container">
 					<div className="col-lg-12 grid-margin stretch-card">
 						<div className="card">
 							<div className="card-body">
 								<h4 className="card-title clearFixx">
-									<div>Movies</div>
+									<div>Episodes [{this.state.series.title}]</div>
 									<div className="linkNew">
 										<Link
-											to="/movies/create"
+											to={`/series/episode/create/${this.state.series._id}`}
 											className="btn btn-primary"
 										>
 											+ Add New
@@ -90,9 +93,8 @@ export class Movies extends Component {
 											<tr>
 												<th> # </th>
 												<th> Date & Time </th>
+												<th> Episode No </th>
 												<th> Title </th>
-												<th> Genre </th>
-												<th> Subs Required </th>
 												<th> Delete </th>
 											</tr>
 										</thead>
@@ -120,20 +122,13 @@ export class Movies extends Component {
 														</td>
 														<td>
 															{
-																item.title
+																item.episodeNo
 															}
 														</td>
 														<td>
 															{
-																item
-																	.genre
-																	.title
+																item.title
 															}
-														</td>
-														<td>
-															{item.subscriptionRequired
-																? 'Paid'
-																: 'Free'}
 														</td>
 
 														<td>
@@ -211,4 +206,4 @@ export class Movies extends Component {
 	}
 }
 
-export default Movies;
+export default Series;

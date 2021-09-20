@@ -111,12 +111,44 @@ class Sidebar extends Component {
 							</span>
 						</Link>
 					</li>
+					<li className={this.isPathActive('/genres') ? 'nav-item active' : 'nav-item'}>
+						<Link className="nav-link" to="/genres">
+							<i className="mdi mdi-sim-alert menu-icon"></i>
+							<span className="menu-title">
+								<Trans>Genres</Trans>
+							</span>
+						</Link>
+					</li>
 
 					<li className={this.isPathActive('/movies') ? 'nav-item active' : 'nav-item'}>
 						<Link className="nav-link" to="/movies">
 							<i className="mdi mdi-sim-alert menu-icon"></i>
 							<span className="menu-title">
 								<Trans>Movies</Trans>
+							</span>
+						</Link>
+					</li>
+
+					<li className={this.isPathActive('/series') ? 'nav-item active' : 'nav-item'}>
+						<Link className="nav-link" to="/series">
+							<i className="mdi mdi-sim-alert menu-icon"></i>
+							<span className="menu-title">
+								<Trans>Series</Trans>
+							</span>
+						</Link>
+					</li>
+
+					<li
+						className={
+							this.isPathActive('/subscriptions')
+								? 'nav-item active'
+								: 'nav-item'
+						}
+					>
+						<Link className="nav-link" to="/subscriptions">
+							<i className="mdi mdi-sim-alert menu-icon"></i>
+							<span className="menu-title">
+								<Trans>Subscriptions</Trans>
 							</span>
 						</Link>
 					</li>

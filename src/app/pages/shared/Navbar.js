@@ -108,14 +108,7 @@ class Navbar extends Component {
 						className="navbar-brand brand-logo-mini align-self-center d-lg-none"
 						href="!#"
 						onClick={evt => evt.preventDefault()}
-					>
-						<img
-							src="https://www.indianpac.com/images/86x86-signature.gif"
-							alt="logo"
-							width={60}
-							height={50}
-						/>
-					</a>
+					></a>
 
 					<button
 						className="navbar-toggler navbar-toggler align-self-center"

@@ -7,7 +7,7 @@ import { s3ForImages, s3ForImagesDelete, s3ForVideoSource } from '../../utils/aw
 import axios from '../../utils/axios-default';
 import Form from 'react-bootstrap/Form';
 
-export default function MovieCreateOrEdit(props) {
+export default function SeriesCreateOrEdit(props) {
 	const [dateArray, setDateArray] = useState([]);
 	const [genreArray, setGenreArray] = useState([]);
 	const [title, setTitle] = useState('');
@@ -17,7 +17,7 @@ export default function MovieCreateOrEdit(props) {
 	const [director, setDirector] = useState('');
 	const [productionHouse, setProductionHouse] = useState('');
 	const [imdbRating, setImdbRating] = useState('');
-	const [runningTime, setRunningTime] = useState('');
+	const [noOfEpisodes, setNoOfEpisodes] = useState('');
 	const [actors, setActors] = useState('');
 	const [plot, setPlot] = useState('');
 	const [rated, setRated] = useState('');
@@ -30,7 +30,7 @@ export default function MovieCreateOrEdit(props) {
 
 	const [images, setImages] = useState([]);
 	const [videoTrailer, setvideoTrailer] = useState({});
-	const [videoMain, setVideoMain] = useState({});
+
 	const [imagesVertical, setImagesVertical] = useState([]);
 	const fileInputImagesRef = useRef();
 	const fileInputImagesVerticalRef = useRef();
@@ -45,7 +45,7 @@ export default function MovieCreateOrEdit(props) {
 	const handleSubmitForm = e => {
 		e.preventDefault();
 		console.log(formRef);
-		axios.post('movies/', {
+		axios.post('series/', {
 			title,
 			genre,
 			yearOfRelease,
@@ -53,14 +53,13 @@ export default function MovieCreateOrEdit(props) {
 			director,
 			productionHouse,
 			imdbRating,
-			runningTime,
+			noOfEpisodes,
 			actors,
 			plot,
 			rated,
 			subscriptionRequired,
 			images,
 			videoTrailer,
-			videoMain,
 			imagesVertical,
 		})
 			.then(res => {
@@ -220,65 +219,6 @@ export default function MovieCreateOrEdit(props) {
 		fileInputImagesVerticalRef.current.value = '';
 	};
 
-	const uploadVideoMain = e => {
-		e.preventDefault();
-		if (fileInputVideoMainRef.current.files.length !== 0) {
-			let filesArray = fileInputVideoMainRef.current.files;
-			const handleS3VideoUpload = file => {
-				useLoaderContext.loadingText('Processing');
-				useLoaderContext.toggleLoader(true);
-				let newFileName = file.name.replace(/\..+$/, '');
-				newFileName = parseInt(Math.random() * 10000000).toString() + '-' + newFileName;
-				let m3u8FileName = newFileName.split('.')[0] + '.m3u8';
-				let dir = 'assets01/';
-				let url = newFileName.split('.')[0] + '/AppleHLS1/' + m3u8FileName;
-				let baseUrl =
-					'https://new-media-stack-destination920a3c57-n2wymmftaxdd.s3.amazonaws.com/' +
-					dir;
-
-				var cfUrlSource = 'https://d2pmcqfenajpb2.cloudfront.net/';
-				var cfUrlDest = 'https://d3dr7atq7iqw02.cloudfront.net/';
-
-				ReactS3ClientVideo.uploadFile(file, newFileName).then(data => {
-					let res = {
-						sourceLocation: {
-							bucket: data.bucket,
-							key: data.key,
-							location: {
-								s3url: data.location,
-								cloudFrontUrl: cfUrlSource + data.key,
-							},
-						},
-						destinationLocation: {
-							bucket: 'new-media-stack-destination920a3c57-n2wymmftaxdd',
-							key: dir + url,
-							location: {
-								s3url: baseUrl + url,
-								cloudFrontUrl: cfUrlDest + dir + url,
-							},
-						},
-					};
-					// console.log(res);
-
-					if (data.status === 204) {
-						// alert('success');
-						console.log(res);
-						setVideoMain(res);
-					} else {
-						alert('Video uploading failed');
-					}
-					useLoaderContext.toggleLoader(false);
-				});
-			};
-			for (let i = 0; i < filesArray.length; i++) {
-				handleS3VideoUpload(filesArray[i]);
-			}
-		} else {
-			alert('Please choose video to upload');
-		}
-		fileInputImagesVerticalRef.current.value = '';
-	};
-
 	useEffect(() => {
 		for (let index = 1950; index < 2022; index++) {
 			setDateArray(d => [...d, index]);
@@ -292,7 +232,7 @@ export default function MovieCreateOrEdit(props) {
 	return (
 		<>
 			<Helmet defer={false}>
-				<title>New Movie - {process.env.REACT_APP_NAME}</title>
+				<title>New Series - {process.env.REACT_APP_NAME}</title>
 			</Helmet>
 			<div className="">
 				<div className="container">
@@ -302,7 +242,7 @@ export default function MovieCreateOrEdit(props) {
 								<div className="card">
 									<div className="card-body">
 										<h4 className="card-title bg-light clearfix ">
-											New Movie
+											New Series
 										</h4>
 										<div>
 											<Form
@@ -316,7 +256,7 @@ export default function MovieCreateOrEdit(props) {
 													controlId="formBasicEmail"
 												>
 													<Form.Label>
-														Movie
+														Series
 														Title
 													</Form.Label>
 													<Form.Control
@@ -384,6 +324,31 @@ export default function MovieCreateOrEdit(props) {
 															)
 														)}
 													</select>
+												</Form.Group>
+												<Form.Group
+													className="col-12"
+													controlId="formBasicEmail"
+												>
+													<Form.Label>
+														No of
+														Episodes
+													</Form.Label>
+													<Form.Control
+														type="number"
+														value={
+															noOfEpisodes
+														}
+														onChange={e =>
+															setNoOfEpisodes(
+																e
+																	.target
+																	.value
+															)
+														}
+														required={
+															true
+														}
+													/>
 												</Form.Group>
 												<div className="col-md-12">
 													<div className="row">
@@ -627,81 +592,7 @@ export default function MovieCreateOrEdit(props) {
 														)}
 													</div>
 												</div>
-												<div className="col-md-12">
-													<div className="row">
-														<div className="col-md-8">
-															<Form.Group controlId="formBasicEmail">
-																<Form.Label>
-																	Main
-																	Video
-																</Form.Label>
-																<Form.Control
-																	type="file"
-																	ref={
-																		fileInputVideoMainRef
-																	}
-																/>
-															</Form.Group>
-														</div>
-														<div className="col-md-4">
-															<Form.Group controlId="formBasicEmail">
-																<Form.Label></Form.Label>
-																<div
-																	style={{
-																		paddingTop: 3,
-																	}}
-																>
-																	<Button
-																		onClick={
-																			uploadVideoMain
-																		}
-																	>
-																		Upload
-																		Main
-																		Video
-																	</Button>
-																</div>
-															</Form.Group>
-														</div>
-													</div>
-												</div>
 
-												<div className="col-12">
-													<div
-														className="row"
-														style={{
-															marginTop: 10,
-															marginBottom: 10,
-														}}
-													>
-														{Object.keys(
-															videoMain
-														)
-															.length >
-															0 && (
-															<div
-																key={
-																	0
-																}
-																className="col-12 col-md-3"
-															>
-																<video
-																	width="450"
-																	src={
-																		videoMain
-																			.sourceLocation
-																			.location
-																			.cloudFrontUrl
-																	}
-																	controls="on"
-																	autoPlay={
-																		true
-																	}
-																/>
-															</div>
-														)}
-													</div>
-												</div>
 												<Form.Group
 													className="col-12"
 													controlId="formBasicEmail"
@@ -876,32 +767,6 @@ export default function MovieCreateOrEdit(props) {
 													controlId="formBasicEmail"
 												>
 													<Form.Label>
-														Running
-														Time
-													</Form.Label>
-													<Form.Control
-														type="text"
-														value={
-															runningTime
-														}
-														onChange={e =>
-															setRunningTime(
-																e
-																	.target
-																	.value
-															)
-														}
-														required={
-															true
-														}
-													/>
-												</Form.Group>
-
-												<Form.Group
-													className="col-12"
-													controlId="formBasicEmail"
-												>
-													<Form.Label>
 														Plot
 													</Form.Label>
 													<Form.Control
@@ -1015,8 +880,6 @@ export default function MovieCreateOrEdit(props) {
 															imagesVertical.length >
 																0 &&
 															videoTrailer !==
-																'' &&
-															videoMain !==
 																''
 																? false
 																: true

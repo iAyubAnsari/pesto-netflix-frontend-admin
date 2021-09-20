@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import LoaderContext from '../../context/LoaderContext';
 import axios from '../../utils/axios-default';
 
-export class Movies extends Component {
+export class Subscriptions extends Component {
 	// const { dark, toggle } =
 	static contextType = LoaderContext;
 
@@ -37,10 +37,10 @@ export class Movies extends Component {
 	}
 
 	componentDidMount() {
-		axios.get('/movies/all').then(result => {
+		axios.get('/subscriptions/').then(result => {
 			console.log({ result });
 			this.setState({
-				data: result.data.docs,
+				data: result.data,
 			});
 		});
 	}
@@ -48,7 +48,7 @@ export class Movies extends Component {
 	handleDelete() {
 		this.context.loadingText('Processing');
 		this.context.toggleLoader(true);
-		axios.delete('/movies/' + this.state.deletableId + '/delete')
+		axios.delete('/subscriptions/' + this.state.deletableId + '/delete')
 			.then(res => {
 				alert('Deleted successfuly');
 				this.handleDeleteModalClose();
@@ -66,22 +66,22 @@ export class Movies extends Component {
 		return (
 			<>
 				<Helmet defer={false}>
-					<title>Movies - {process.env.REACT_APP_NAME}</title>
+					<title>Subscriptions - {process.env.REACT_APP_NAME}</title>
 				</Helmet>
 				<div className="container">
 					<div className="col-lg-12 grid-margin stretch-card">
 						<div className="card">
 							<div className="card-body">
 								<h4 className="card-title clearFixx">
-									<div>Movies</div>
-									<div className="linkNew">
+									<div>Subscriptions</div>
+									{/* <div className="linkNew">
 										<Link
-											to="/movies/create"
+											to="subscriptions/create"
 											className="btn btn-primary"
 										>
 											+ Add New
 										</Link>
-									</div>
+									</div> */}
 								</h4>
 
 								<div className="table-responsive">
@@ -90,9 +90,10 @@ export class Movies extends Component {
 											<tr>
 												<th> # </th>
 												<th> Date & Time </th>
-												<th> Title </th>
-												<th> Genre </th>
-												<th> Subs Required </th>
+												<th> User ID </th>
+												<th> Name </th>
+												<th> Amount </th>
+												<th> Status </th>
 												<th> Delete </th>
 											</tr>
 										</thead>
@@ -120,20 +121,27 @@ export class Movies extends Component {
 														</td>
 														<td>
 															{
-																item.title
+																item
+																	.user
+																	._id
 															}
 														</td>
 														<td>
 															{
 																item
-																	.genre
-																	.title
+																	.user
+																	.name
 															}
 														</td>
 														<td>
-															{item.subscriptionRequired
-																? 'Paid'
-																: 'Free'}
+															{
+																item.amount
+															}
+														</td>
+														<td>
+															{
+																item.status
+															}
 														</td>
 
 														<td>
@@ -211,4 +219,4 @@ export class Movies extends Component {
 	}
 }
 
-export default Movies;
+export default Subscriptions;

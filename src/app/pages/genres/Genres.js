@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import LoaderContext from '../../context/LoaderContext';
 import axios from '../../utils/axios-default';
 
-export class Movies extends Component {
+export class Genres extends Component {
 	// const { dark, toggle } =
 	static contextType = LoaderContext;
 
@@ -37,10 +37,10 @@ export class Movies extends Component {
 	}
 
 	componentDidMount() {
-		axios.get('/movies/all').then(result => {
+		axios.get('/genres/all').then(result => {
 			console.log({ result });
 			this.setState({
-				data: result.data.docs,
+				data: result.data,
 			});
 		});
 	}
@@ -48,7 +48,7 @@ export class Movies extends Component {
 	handleDelete() {
 		this.context.loadingText('Processing');
 		this.context.toggleLoader(true);
-		axios.delete('/movies/' + this.state.deletableId + '/delete')
+		axios.delete('/genres/' + this.state.deletableId + '/delete')
 			.then(res => {
 				alert('Deleted successfuly');
 				this.handleDeleteModalClose();
@@ -66,17 +66,17 @@ export class Movies extends Component {
 		return (
 			<>
 				<Helmet defer={false}>
-					<title>Movies - {process.env.REACT_APP_NAME}</title>
+					<title>Genres - {process.env.REACT_APP_NAME}</title>
 				</Helmet>
 				<div className="container">
 					<div className="col-lg-12 grid-margin stretch-card">
 						<div className="card">
 							<div className="card-body">
 								<h4 className="card-title clearFixx">
-									<div>Movies</div>
+									<div>Genres</div>
 									<div className="linkNew">
 										<Link
-											to="/movies/create"
+											to="genres/create"
 											className="btn btn-primary"
 										>
 											+ Add New
@@ -91,8 +91,8 @@ export class Movies extends Component {
 												<th> # </th>
 												<th> Date & Time </th>
 												<th> Title </th>
-												<th> Genre </th>
-												<th> Subs Required </th>
+												<th> Slug </th>
+
 												<th> Delete </th>
 											</tr>
 										</thead>
@@ -125,15 +125,8 @@ export class Movies extends Component {
 														</td>
 														<td>
 															{
-																item
-																	.genre
-																	.title
+																item.slug
 															}
-														</td>
-														<td>
-															{item.subscriptionRequired
-																? 'Paid'
-																: 'Free'}
 														</td>
 
 														<td>
@@ -211,4 +204,4 @@ export class Movies extends Component {
 	}
 }
 
-export default Movies;
+export default Genres;
