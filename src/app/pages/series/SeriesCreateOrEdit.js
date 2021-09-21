@@ -21,10 +21,9 @@ export default function SeriesCreateOrEdit(props) {
 	const [actors, setActors] = useState('');
 	const [plot, setPlot] = useState('');
 	const [rated, setRated] = useState('');
-	const [isPublieshed, setIsPublieshed] = useState('');
 	const [subscriptionRequired, setSubscriptionRequired] = useState('');
 
-	const [errorText, setErrorText] = useState('');
+	// const [errorText, setErrorText] = useState('');
 	const [isLoading, setLoading] = useState(false);
 	const useLoaderContext = useContext(LoaderContext);
 
@@ -35,7 +34,7 @@ export default function SeriesCreateOrEdit(props) {
 	const fileInputImagesRef = useRef();
 	const fileInputImagesVerticalRef = useRef();
 	const fileInputVideoTrailerRef = useRef();
-	const fileInputVideoMainRef = useRef();
+	// const fileInputVideoMainRef = useRef();
 	const formRef = useRef();
 
 	const ReactS3ClientVideo = new S3(s3ForVideoSource('assets01'));
@@ -44,7 +43,10 @@ export default function SeriesCreateOrEdit(props) {
 
 	const handleSubmitForm = e => {
 		e.preventDefault();
-		console.log(formRef);
+		setLoading(true);
+		useLoaderContext.loadingText('Processing');
+		useLoaderContext.toggleLoader(true);
+		// console.log(formRef);
 		axios.post('series/', {
 			title,
 			genre,
@@ -63,10 +65,16 @@ export default function SeriesCreateOrEdit(props) {
 			imagesVertical,
 		})
 			.then(res => {
-				alert('done');
+				alert('Saved successfully');
+				window.location.href = process.env.REACT_APP_URL + '/series';
 			})
 			.catch(err => {
 				console.log(err);
+			})
+			.finally(e => {
+				useLoaderContext.toggleLoader(false);
+				setLoading(false);
+				blankInputs();
 			});
 	};
 
@@ -226,7 +234,6 @@ export default function SeriesCreateOrEdit(props) {
 		axios.get('/genres/all').then(res => {
 			setGenreArray(res.data);
 		});
-		console.log(images);
 	}, []);
 
 	return (
@@ -408,6 +415,7 @@ export default function SeriesCreateOrEdit(props) {
 																	className="col-12 col-md-3"
 																>
 																	<img
+																		alt="main"
 																		style={{
 																			maxWidth: '100%',
 																			borderRadius: 7,
@@ -502,6 +510,7 @@ export default function SeriesCreateOrEdit(props) {
 																	className="col-12 col-md-3"
 																>
 																	<img
+																		alt="poster"
 																		style={{
 																			maxWidth: '100%',
 																			borderRadius: 7,

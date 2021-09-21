@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import S3 from 'react-aws-s3';
 import { Button } from 'react-bootstrap';
+import Form from 'react-bootstrap/Form';
 import { Helmet } from 'react-helmet';
 import LoaderContext from '../../context/LoaderContext';
 import { s3ForImages, s3ForImagesDelete, s3ForVideoSource } from '../../utils/aws-s3-config';
 import axios from '../../utils/axios-default';
-import Form from 'react-bootstrap/Form';
 
 export default function MovieCreateOrEdit(props) {
 	const [dateArray, setDateArray] = useState([]);
@@ -21,10 +21,9 @@ export default function MovieCreateOrEdit(props) {
 	const [actors, setActors] = useState('');
 	const [plot, setPlot] = useState('');
 	const [rated, setRated] = useState('');
-	const [isPublieshed, setIsPublieshed] = useState('');
 	const [subscriptionRequired, setSubscriptionRequired] = useState('');
 
-	const [errorText, setErrorText] = useState('');
+	// const [errorText, setErrorText] = useState('');
 	const [isLoading, setLoading] = useState(false);
 	const useLoaderContext = useContext(LoaderContext);
 
@@ -44,7 +43,10 @@ export default function MovieCreateOrEdit(props) {
 
 	const handleSubmitForm = e => {
 		e.preventDefault();
-		console.log(formRef);
+		setLoading(true);
+		useLoaderContext.loadingText('Processing');
+		useLoaderContext.toggleLoader(true);
+		// console.log(formRef);
 		axios.post('movies/', {
 			title,
 			genre,
@@ -64,10 +66,16 @@ export default function MovieCreateOrEdit(props) {
 			imagesVertical,
 		})
 			.then(res => {
-				alert('done');
+				alert('Saved successfully');
+				window.location.href = process.env.REACT_APP_URL + '/movies';
 			})
 			.catch(err => {
 				console.log(err);
+			})
+			.finally(e => {
+				useLoaderContext.toggleLoader(false);
+				setLoading(false);
+				blankInputs();
 			});
 	};
 
@@ -286,7 +294,6 @@ export default function MovieCreateOrEdit(props) {
 		axios.get('/genres/all').then(res => {
 			setGenreArray(res.data);
 		});
-		console.log(images);
 	}, []);
 
 	return (
@@ -443,6 +450,7 @@ export default function MovieCreateOrEdit(props) {
 																	className="col-12 col-md-3"
 																>
 																	<img
+																		alt="main"
 																		style={{
 																			maxWidth: '100%',
 																			borderRadius: 7,
@@ -537,6 +545,7 @@ export default function MovieCreateOrEdit(props) {
 																	className="col-12 col-md-3"
 																>
 																	<img
+																		alt="poster"
 																		style={{
 																			maxWidth: '100%',
 																			borderRadius: 7,

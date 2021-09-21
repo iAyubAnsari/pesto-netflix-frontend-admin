@@ -38,7 +38,7 @@ export class Series extends Component {
 	}
 
 	componentDidMount() {
-		let { id, slug } = this.props.match.params;
+		let { slug } = this.props.match.params;
 		// console.log({ id, slug });
 		axios.get('/series/s/' + slug).then(result => {
 			this.setState({

@@ -15,14 +15,14 @@ export default function EpisodeCreateOrEdit(props) {
 	const [actors, setActors] = useState('');
 	const [plot, setPlot] = useState('');
 	const [episodeNo, setEpisodeNo] = useState('');
-	const [errorText, setErrorText] = useState('');
+	// const [errorText, setErrorText] = useState('');
 	const [isLoading, setLoading] = useState(false);
 	const useLoaderContext = useContext(LoaderContext);
 
 	const [images, setImages] = useState([]);
 	const [videoTrailer, setvideoTrailer] = useState({});
 	const [videoMain, setVideoMain] = useState({});
-	const [imagesVertical, setImagesVertical] = useState([]);
+
 	const fileInputImagesRef = useRef();
 
 	const fileInputVideoTrailerRef = useRef();
@@ -35,7 +35,9 @@ export default function EpisodeCreateOrEdit(props) {
 
 	const handleSubmitForm = e => {
 		e.preventDefault();
-		console.log(formRef);
+		setLoading(true);
+		useLoaderContext.loadingText('Processing');
+		useLoaderContext.toggleLoader(true);
 		axios.post('series-episodes/', {
 			episodeNo,
 			title,
@@ -49,10 +51,16 @@ export default function EpisodeCreateOrEdit(props) {
 			series: series._id,
 		})
 			.then(res => {
-				alert('done');
+				alert('Saved successfully');
+				window.location.href = process.env.REACT_APP_URL + 'series/' + series.slug;
 			})
 			.catch(err => {
 				console.log(err);
+			})
+			.finally(e => {
+				useLoaderContext.toggleLoader(false);
+				setLoading(false);
+				blankInputs();
 			});
 	};
 
@@ -368,6 +376,7 @@ export default function EpisodeCreateOrEdit(props) {
 																	className="col-12 col-md-3"
 																>
 																	<img
+																		alt="main "
 																		style={{
 																			maxWidth: '100%',
 																			borderRadius: 7,

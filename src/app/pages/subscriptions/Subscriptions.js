@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Button } from 'react-bootstrap';
 import Modal from 'react-bootstrap/Modal';
 import { Helmet } from 'react-helmet';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import LoaderContext from '../../context/LoaderContext';
 import axios from '../../utils/axios-default';
 

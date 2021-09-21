@@ -1,11 +1,9 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import S3 from 'react-aws-s3';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
+import Form from 'react-bootstrap/Form';
 import { Helmet } from 'react-helmet';
 import LoaderContext from '../../context/LoaderContext';
-import { s3ForImages, s3ForVideoSource } from '../../utils/aws-s3-config';
 import axios from '../../utils/axios-default';
-import Form from 'react-bootstrap/Form';
 
 export default function GenreCreateOrEdit(props) {
 	const [title, setTitle] = useState('');
@@ -17,12 +15,12 @@ export default function GenreCreateOrEdit(props) {
 		e.preventDefault();
 		useLoaderContext.loadingText('Processing');
 		useLoaderContext.toggleLoader(true);
-		// setLoading("")
+		setLoading(true);
 		axios.post('genres/', {
 			title,
 		})
 			.then(res => {
-				alert('done');
+				alert('Saved successfully');
 				window.location.href = process.env.REACT_APP_URL + '/genres';
 			})
 			.catch(err => {
@@ -30,6 +28,8 @@ export default function GenreCreateOrEdit(props) {
 			})
 			.finally(e => {
 				useLoaderContext.toggleLoader(false);
+				blankInputs();
+				setLoading(false);
 			});
 	};
 	const blankInputs = () => {};
