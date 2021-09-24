@@ -52,7 +52,7 @@ export default function EpisodeCreateOrEdit(props) {
 		})
 			.then(res => {
 				alert('Saved successfully');
-				window.location.href = process.env.REACT_APP_URL + 'series/' + series.slug;
+				window.location.href = process.env.REACT_APP_URL + '/series/' + series.slug;
 			})
 			.catch(err => {
 				console.log(err);
