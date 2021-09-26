@@ -40,17 +40,22 @@ class Login extends Component {
 				.then(res => {
 					// console.log(res.data.data.user);
 					// if disabled
-					if (res.data.data.user.active) {
-						localStorage.setItem('name', res.data.data.user.name);
-						localStorage.setItem('role', res.data.data.user.role);
-						localStorage.setItem('accessToken', res.data.data.accessToken);
-						localStorage.setItem('user', res.data.data.user._id);
-						this.props.login();
-						setTimeout(() => {
-							window.location.href = process.env.REACT_APP_URL + '/dashboard';
-						}, 500);
+					if (res.data.data.user.role === 'Admin') {
+						if (res.data.data.user.active) {
+							localStorage.setItem('name', res.data.data.user.name);
+							localStorage.setItem('role', res.data.data.user.role);
+							localStorage.setItem('accessToken', res.data.data.accessToken);
+							localStorage.setItem('user', res.data.data.user._id);
+							this.props.login();
+							setTimeout(() => {
+								window.location.href =
+									process.env.REACT_APP_URL + '/dashboard';
+							}, 500);
+						} else {
+							alert('Your account has been disabled');
+						}
 					} else {
-						alert('Your account has been disabled');
+						alert('Unauthorized person');
 					}
 				})
 				.catch(() => {

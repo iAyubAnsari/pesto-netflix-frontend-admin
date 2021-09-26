@@ -6,6 +6,7 @@ import LoaderContext from '../../context/LoaderContext';
 import { s3ForImages, s3ForImagesDelete, s3ForVideoSource } from '../../utils/aws-s3-config';
 import axios from '../../utils/axios-default';
 import Form from 'react-bootstrap/Form';
+import slugify from 'react-slugify';
 
 export default function EpisodeCreateOrEdit(props) {
 	const [series, setseries] = useState({});
@@ -86,6 +87,7 @@ export default function EpisodeCreateOrEdit(props) {
 				useLoaderContext.loadingText('Processing');
 				useLoaderContext.toggleLoader(true);
 				let newFileName = file.name.replace(/\..+$/, '');
+				newFileName = slugify(newFileName);
 				newFileName = parseInt(Math.random() * 10000000).toString() + '-' + newFileName;
 				await ReactS3Client.uploadFile(file, newFileName).then(data => {
 					if (data.status === 204) {
@@ -126,6 +128,7 @@ export default function EpisodeCreateOrEdit(props) {
 				useLoaderContext.loadingText('Processing');
 				useLoaderContext.toggleLoader(true);
 				let newFileName = file.name.replace(/\..+$/, '');
+				newFileName = slugify(newFileName);
 				newFileName = parseInt(Math.random() * 10000000).toString() + '-' + newFileName;
 				let m3u8FileName = newFileName.split('.')[0] + '.m3u8';
 				let dir = 'assets01/';
@@ -185,6 +188,7 @@ export default function EpisodeCreateOrEdit(props) {
 				useLoaderContext.loadingText('Processing');
 				useLoaderContext.toggleLoader(true);
 				let newFileName = file.name.replace(/\..+$/, '');
+				newFileName = slugify(newFileName);
 				newFileName = parseInt(Math.random() * 10000000).toString() + '-' + newFileName;
 				let m3u8FileName = newFileName.split('.')[0] + '.m3u8';
 				let dir = 'assets01/';

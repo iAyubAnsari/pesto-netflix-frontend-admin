@@ -6,12 +6,15 @@ import { Helmet } from 'react-helmet';
 import LoaderContext from '../../context/LoaderContext';
 import { s3ForImages, s3ForImagesDelete, s3ForVideoSource } from '../../utils/aws-s3-config';
 import axios from '../../utils/axios-default';
+import slugify from 'react-slugify';
+
+import Select from 'react-select';
 
 export default function MovieCreateOrEdit(props) {
 	const [dateArray, setDateArray] = useState([]);
 	const [genreArray, setGenreArray] = useState([]);
 	const [title, setTitle] = useState('');
-	const [genre, setGenre] = useState('');
+	const [genre, setGenre] = useState([]);
 	const [yearOfRelease, setYearOfRelease] = useState('');
 	const [dateOfRelease, setDateOfRelease] = useState('');
 	const [director, setDirector] = useState('');
@@ -47,9 +50,11 @@ export default function MovieCreateOrEdit(props) {
 		useLoaderContext.loadingText('Processing');
 		useLoaderContext.toggleLoader(true);
 		// console.log(formRef);
+		let genres = genre.map(item => item.value);
+		// console.log(genres);
 		axios.post('movies/', {
 			title,
-			genre,
+			genres,
 			yearOfRelease,
 			dateOfRelease,
 			director,
@@ -101,6 +106,7 @@ export default function MovieCreateOrEdit(props) {
 				useLoaderContext.loadingText('Processing');
 				useLoaderContext.toggleLoader(true);
 				let newFileName = file.name.replace(/\..+$/, '');
+				newFileName = slugify(newFileName);
 				newFileName = parseInt(Math.random() * 10000000).toString() + '-' + newFileName;
 				await ReactS3Client.uploadFile(file, newFileName).then(data => {
 					if (data.status === 204) {
@@ -140,6 +146,7 @@ export default function MovieCreateOrEdit(props) {
 				useLoaderContext.loadingText('Processing');
 				useLoaderContext.toggleLoader(true);
 				let newFileName = file.name.replace(/\..+$/, '');
+				newFileName = slugify(newFileName);
 				newFileName = parseInt(Math.random() * 10000000).toString() + '-' + newFileName;
 				await ReactS3Client.uploadFile(file, newFileName).then(data => {
 					if (data.status === 204) {
@@ -178,6 +185,8 @@ export default function MovieCreateOrEdit(props) {
 				useLoaderContext.toggleLoader(true);
 				let newFileName = file.name.replace(/\..+$/, '');
 				newFileName = parseInt(Math.random() * 10000000).toString() + '-' + newFileName;
+				newFileName = slugify(newFileName);
+				// console.log({ newFileName });
 				let m3u8FileName = newFileName.split('.')[0] + '.m3u8';
 				let dir = 'assets01/';
 				let url = newFileName.split('.')[0] + '/AppleHLS1/' + m3u8FileName;
@@ -237,6 +246,7 @@ export default function MovieCreateOrEdit(props) {
 				useLoaderContext.toggleLoader(true);
 				let newFileName = file.name.replace(/\..+$/, '');
 				newFileName = parseInt(Math.random() * 10000000).toString() + '-' + newFileName;
+				newFileName = slugify(newFileName);
 				let m3u8FileName = newFileName.split('.')[0] + '.m3u8';
 				let dir = 'assets01/';
 				let url = newFileName.split('.')[0] + '/AppleHLS1/' + m3u8FileName;
@@ -287,13 +297,25 @@ export default function MovieCreateOrEdit(props) {
 		fileInputImagesVerticalRef.current.value = '';
 	};
 
+	const handleSelectChange = selectedOption => {
+		setGenre([...selectedOption]);
+		// console.log(`Option selected:`, selectedOption);
+	};
+
 	useEffect(() => {
+		let arr = [];
+		axios.get('/genres/all')
+			.then(res => {
+				res.data.map((item, index) => {
+					arr.push({ value: item._id, label: item.title });
+				});
+			})
+			.finally(e => {
+				setGenreArray(arr);
+			});
 		for (let index = 1950; index < 2022; index++) {
 			setDateArray(d => [...d, index]);
 		}
-		axios.get('/genres/all').then(res => {
-			setGenreArray(res.data);
-		});
 	}, []);
 
 	return (
@@ -349,49 +371,25 @@ export default function MovieCreateOrEdit(props) {
 													controlId="formBasicEmail"
 												>
 													<Form.Label>
-														Genre
+														Genres
 													</Form.Label>
-													<select
-														className="form-control"
-														aria-label="Default select example"
-														name="genre"
+
+													<Select
+														isMulti={
+															true
+														}
 														value={
 															genre
 														}
-														onChange={e =>
-															setGenre(
-																e
-																	.target
-																	.value
-															)
+														onChange={
+															handleSelectChange
 														}
-													>
-														<option>
-															--
-															Choose
-															--
-														</option>
-														{genreArray.map(
-															(
-																item,
-																index
-															) => (
-																<option
-																	key={
-																		index
-																	}
-																	value={
-																		item._id
-																	}
-																>
-																	{
-																		item.title
-																	}
-																</option>
-															)
-														)}
-													</select>
+														options={
+															genreArray
+														}
+													/>
 												</Form.Group>
+
 												<div className="col-md-12">
 													<div className="row">
 														<div className="col-md-8">

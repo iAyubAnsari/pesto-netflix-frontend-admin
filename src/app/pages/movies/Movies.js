@@ -91,7 +91,7 @@ export class Movies extends Component {
 												<th> # </th>
 												<th> Date & Time </th>
 												<th> Title </th>
-												<th> Genre </th>
+												<th> Genres </th>
 												<th> Subs Required </th>
 												<th> Delete </th>
 											</tr>
@@ -124,11 +124,23 @@ export class Movies extends Component {
 															}
 														</td>
 														<td>
-															{
-																item
-																	.genre
-																	.title
-															}
+															{item.genres.map(
+																(
+																	item,
+																	index
+																) => (
+																	<span
+																		key={
+																			index
+																		}
+																	>
+																		{
+																			item.title
+																		}{' '}
+																		,
+																	</span>
+																)
+															)}
 														</td>
 														<td>
 															{item.subscriptionRequired

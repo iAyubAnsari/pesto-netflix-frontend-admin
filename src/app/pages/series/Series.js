@@ -91,7 +91,7 @@ export class Series extends Component {
 												<th> # </th>
 												<th> Date & Time </th>
 												<th> Title </th>
-												<th> Genre </th>
+												<th> Genres </th>
 												<th> Episodes </th>
 												<th> Subs Required </th>
 												<th> Delete </th>
@@ -125,15 +125,27 @@ export class Series extends Component {
 															}
 														</td>
 														<td>
-															{
-																item
-																	.genre
-																	.title
-															}
+															{item.genres.map(
+																(
+																	item,
+																	index
+																) => (
+																	<span
+																		key={
+																			index
+																		}
+																	>
+																		{
+																			item.title
+																		}{' '}
+																		,
+																	</span>
+																)
+															)}
 														</td>
 														<td>
 															<a
-																class="btn btn-primary"
+																className="btn btn-primary"
 																href={`series/${item.slug}`}
 															>
 																Episodes
